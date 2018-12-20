@@ -72,7 +72,7 @@ const QRCode = require("qrcode");
  * }
  */
 app.post("/qrcode", (req, res) => {
-  const text = req.body.text;
+  const text = req.body.stringText;
   QRCode.toString(text, { type: "svg" })
     .then(svgString => {
       res.status(200).send({

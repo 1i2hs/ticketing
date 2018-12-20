@@ -153,11 +153,11 @@ const respondWith500ErrorMessage = res => error => {
  */
 app.post("/tickets", (req, res) => {
   const name = req.body.username;
-  const phone = req.body.userPhone;
+  const contact = req.body.userContact;
 
-  if (!name || !phone) {
+  if (!name || !contact) {
     res.statusMessage =
-      'Missing "username" or "userPhone" inside HTTP request body.';
+      'Missing "username" or "userContact" inside HTTP request body.';
     return res.sendStatus(400);
   }
 
@@ -166,13 +166,15 @@ app.post("/tickets", (req, res) => {
     const ticketId = ticketPushRef.key;
     axios
       .post(`${process.env.QRCODE_GENERATOR_ADDRESS}/qrcode`, {
-        text: `jtm://tickets/${ticketId}`
+        stringText: `jtm://tickets/${ticketId}`
       })
       .then(response => {
         const newTicket = {
           name,
-          phone,
-          svg: response.data.svgString
+          contact,
+          dateCreated: Date.now(),
+          svg: response.data.svgString,
+          used: false
         };
 
         return ticketPushRef.set(newTicket).then(() => {
@@ -212,16 +214,17 @@ app.get("/tickets", (req, res) => {
 app.put("/tickets/:id", (req, res) => {
   const ticketId = req.params.id;
   const name = req.body.username;
-  const phone = req.body.userPhone;
+  const contact = req.body.userContact;
+  const used = req.body.ticketUsed;
 
   if (!ticketId) {
     res.statusMessage = 'Missing "ticketId" inside HTTP request param.';
     return res.sendStatus(400);
   }
 
-  if (!name || !phone) {
+  if (!name || !contact) {
     res.statusMessage =
-      'Missing "username" or "userPhone" inside HTTP request body.';
+      'Missing "username" or "userContact" inside HTTP request body.';
     return res.sendStatus(400);
   }
 
@@ -230,7 +233,8 @@ app.put("/tickets/:id", (req, res) => {
       .child(ticketId)
       .update({
         name,
-        phone
+        contact,
+        used
       })
       .then(() => {
         res.sendStatus(200);

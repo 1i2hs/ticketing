@@ -11,11 +11,12 @@ module.exports = {
       env: {
         COMMON_VARIABLE: "true",
         APP_NAME: "qrcode-generator",
-        PORT: 3000
+        PORT: 4000
       },
       env_production: {
         NODE_ENV: "production"
-      }
+      },
+      ignore_watch: ["ticket-manager/client/*"]
     },
 
     // Second application
@@ -25,12 +26,13 @@ module.exports = {
       env: {
         COMMON_VARIABLE: "true",
         APP_NAME: "ticket-manager-api-server",
-        PORT: 4000,
-        QRCODE_GENERATOR_ADDRESS: "http://localhost:3000"
+        PORT: 5000,
+        QRCODE_GENERATOR_ADDRESS: "http://localhost:4000"
       },
       env_production: {
         TICKET_CHECK_PAGE_BASE_URI: ""
-      }
+      },
+      ignore_watch: ["ticket-manager/client/*"]
     }
     // {
     //   name: "ticket-manager-web-server",
