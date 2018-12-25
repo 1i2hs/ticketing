@@ -107,7 +107,7 @@ ticketRef.on(
 /**
  * Authorization part
  */
-// if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     if (
       req.headers.authorization &&
@@ -132,7 +132,7 @@ ticketRef.on(
       res.sendStatus(401);
     }
   });
-// }
+}
 
 const respondWithDisconnectedFromDBMessage = res => {
   const message = "Not connected to Firebase Realtime Database";
