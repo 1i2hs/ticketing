@@ -113,8 +113,8 @@ typings/
 
 # firebase
 .firebase
-./ticket-manager/**/config.json
-./ticket-manager/**/serviceAccountKey.json
+ticket-manager/**/config.json
+ticket-manager/**/serviceAccountKey.json
 
 ### VisualStudioCode ###
 .vscode/*
