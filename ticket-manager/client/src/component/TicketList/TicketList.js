@@ -3,22 +3,25 @@ import { Table, Button, Icon, Divider } from "antd";
 import moment from "moment";
 import AddTicketForm from "../AddTicketForm";
 import ModifyTicketModal from "../ModifyTicketModal";
-import { fetchTickets, deleteTicket } from "../../util/service";
+import service from "../../util/service";
 import "./TicketList.css";
 
 class TicketList extends Component {
   columns = [
     {
       title: "이름",
-      dataIndex: "name"
+      dataIndex: "name",
+      align: "center"
     },
     {
       title: "연락처",
-      dataIndex: "contact"
+      dataIndex: "contact",
+      align: "center"
     },
     {
       title: "티켓 생성 날짜",
-      dataIndex: "dateCreated"
+      dataIndex: "dateCreated",
+      align: "center"
     },
     {
       title: "티켓 QR코드",
@@ -36,22 +39,24 @@ class TicketList extends Component {
       }
     },
     {
-      title: "티켓 사용여부",
+      title: "티켓 사용여부\n(사용날짜)",
       dataIndex: "used",
-      render: (used, row, index) => {
+      render: (used, record, index) => {
         return used ? (
-          <Icon
-            type="check-circle"
-            theme="twoTone"
-            twoToneColor="#52c41a"
-            style={{ fontSize: "20px" }}
-          />
+          <div style={{ textAlign: "center" }}>
+            <Icon
+              type="check-circle"
+              theme="filled"
+              twoToneColor="#52c41a"
+              style={{ color: "#52c41a", fontSize: "20px" }}
+            />
+            <div>({moment(record.timeUsed).format("YY/MM/DD HH:mm")})</div>
+          </div>
         ) : (
           <Icon
             type="close-circle"
-            theme="twoTone"
-            twoToneColor="#eb2f96"
-            style={{ fontSize: "20px" }}
+            theme="filled"
+            style={{ color: "#f81d22", fontSize: "20px" }}
           />
         );
       },
@@ -74,13 +79,14 @@ class TicketList extends Component {
             >
               수정
             </span>
-            <Divider type="vertical" />
+            {/* <Divider type="vertical" />
             <span style={{ cursor: "pointer", color: "#40a9ff" }}>
               QR코드 받기
-            </span>
+            </span> */}
           </span>
         );
-      }
+      },
+      align: "center"
     }
   ];
 
@@ -100,7 +106,7 @@ class TicketList extends Component {
         .map(ticket => ({
           key: ticket.id,
           ...ticket,
-          dateCreated: moment(ticket.dateCreated).format("YY/MM/DD hh:mm:ss")
+          dateCreated: moment(ticket.dateCreated).format("YY/MM/DD HH:mm")
         }))
     });
     return response;
@@ -124,13 +130,14 @@ class TicketList extends Component {
 
   deleteTickets = () => {
     this.toggleLoading();
-    deleteTicket(this.state.selectedRowKeys)
+    service.deleteTicket(this.state.selectedRowKeys)
       .then(() => {
         this.toggleLoading();
         this.fetchTickets();
         this.setState({ selectedRowKeys: [] });
       })
       .catch(error => {
+        if (this.state.loading) this.toggleLoading();
         console.error(error.message);
         console.error(error.stack);
       });
@@ -138,11 +145,12 @@ class TicketList extends Component {
 
   fetchTickets = () => {
     this.toggleLoading();
-    fetchTickets()
+    service.fetchTickets()
       .then(this.setTickets)
       .then(this.setTicketFetchedTime)
       .then(this.toggleLoading)
       .catch(error => {
+        if (this.state.loading) this.toggleLoading();
         console.error(error.message);
         console.error(error.stack);
       });
@@ -196,7 +204,7 @@ class TicketList extends Component {
         <div className="TicketList-control">
           <div>
             <span style={{ fontSize: 16 }}>
-              업데이트 시간: {moment(ticketFetchedTime).format("hh:mm:ss")}
+              업데이트 시간: {moment(ticketFetchedTime).format("HH:mm:ss")}
             </span>
             <Button
               type="primary"

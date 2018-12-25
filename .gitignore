@@ -111,6 +111,9 @@ typings/
 #DynamoDB Local files
 .dynamodb/
 
+# firebase
+.firebase
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json

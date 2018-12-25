@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Form, Icon, Input, Button } from "antd";
-import { createTicket } from "../../util/service";
+import service from "../../util/service";
 import "./AddTicketForm.css";
 
 const FormItem = Form.Item;
@@ -29,7 +29,7 @@ class AddTicketForm extends Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.toggleLoading();
-        createTicket(values.username, values.contact)
+        service.createTicket(values.username, values.contact)
           .then(response => {
             this.props.form.resetFields();
             this.props.onTicketAdded(response.data);

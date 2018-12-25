@@ -58,7 +58,6 @@ app.listen(process.env.PORT, () =>
 
 const uuidV4 = require("uuid/v4");
 const axios = require("axios");
-const QRCode = require("qrcode");
 const admin = require("firebase-admin");
 const serviceAccount = require("./serviceAccountKey.json");
 const config = require("./config.json");
@@ -108,7 +107,7 @@ ticketRef.on(
 /**
  * Authorization part
  */
-if (process.env.NODE_ENV === "production") {
+// if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     if (
       req.headers.authorization &&
@@ -133,7 +132,7 @@ if (process.env.NODE_ENV === "production") {
       res.sendStatus(401);
     }
   });
-}
+// }
 
 const respondWithDisconnectedFromDBMessage = res => {
   const message = "Not connected to Firebase Realtime Database";
@@ -165,27 +164,27 @@ app.post("/tickets", (req, res) => {
   if (ticketRef) {
     const ticketPushRef = ticketRef.push();
     const ticketId = ticketPushRef.key;
-    QRCode.toString(`jtm://tickets/${ticketId}`, { type: "svg" }).then(
-      svgString => {
+    axios
+      .post(`${process.env.QRCODE_GENERATOR_ADDRESS}/qrcode`, {
+        stringText: `jtm://tickets/${ticketId}`
+      })
+      .then(response => {
         const newTicket = {
           name,
           contact,
           dateCreated: Date.now(),
-          svg: svgString,
+          svg: response.data.svgString,
           used: false
         };
 
-        return ticketPushRef
-          .set(newTicket)
-          .then(() => {
-            res.status(201).send({
-              id: ticketId,
-              ...newTicket
-            });
-          })
-          .catch(respondWith500ErrorMessage(res));
-      }
-    );
+        return ticketPushRef.set(newTicket).then(() => {
+          res.status(201).send({
+            id: ticketId,
+            ...newTicket
+          });
+        });
+      })
+      .catch(respondWith500ErrorMessage(res));
   } else {
     respondWithDisconnectedFromDBMessage(res);
   }

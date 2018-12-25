@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Modal, Form, Input, Icon } from "antd";
-import { updateTicket } from "../../util/service";
+import service from "../../util/service";
 import "./ModifyTicketModal.css";
 
 const FormItem = Form.Item;
@@ -24,7 +24,7 @@ class ModifyTicketModal extends Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.toggleLoading();
-        updateTicket(
+        service.updateTicket(
           this.props.ticket.id,
           values.username,
           values.contact,

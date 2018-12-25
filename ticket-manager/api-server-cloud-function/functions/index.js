@@ -1,3 +1,12 @@
+const functions = require("firebase-functions");
+
+// // Create and Deploy Your First Cloud Functions
+// // https://firebase.google.com/docs/functions/write-firebase-functions
+//
+// exports.helloWorld = functions.https.onRequest((request, response) => {
+//  response.send("Hello from Firebase!");
+// });
+
 const express = require("express");
 const compression = require("compression");
 const cors = require("cors");
@@ -52,9 +61,9 @@ process.on("uncaughtException", err => {
   logger.error("=================================================\n\n");
 });
 
-app.listen(process.env.PORT, () =>
-  logger.info(`${process.env.APP_NAME} listening at port ${process.env.PORT}`)
-);
+// app.listen(process.env.PORT, () =>
+//   logger.info(`${process.env.APP_NAME} listening at port ${process.env.PORT}`)
+// );
 
 const uuidV4 = require("uuid/v4");
 const axios = require("axios");
@@ -108,32 +117,32 @@ ticketRef.on(
 /**
  * Authorization part
  */
-if (process.env.NODE_ENV === "production") {
-  app.use((req, res, next) => {
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.split(" ")[0] === "Bearer"
-    ) {
-      // Authorization: Bearer g1jipjgi1ifjioj
-      // Handle token presented as a Bearer token in the Authorization header
-      const idToken = req.headers.authorization.split(" ")[1];
-      admin
-        .auth()
-        .verifyIdToken(idToken)
-        .then(() => {
-          next();
-        })
-        .catch(error => {
-          logger.error(error.message);
-          logger.error(error.stack);
-          res.sendStatus(401);
-        });
-    } else {
-      res.statusMessage = "You must provide authorization token.";
-      res.sendStatus(401);
-    }
-  });
-}
+// if (process.env.NODE_ENV === "production") {
+app.use((req, res, next) => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.split(" ")[0] === "Bearer"
+  ) {
+    // Authorization: Bearer g1jipjgi1ifjioj
+    // Handle token presented as a Bearer token in the Authorization header
+    const idToken = req.headers.authorization.split(" ")[1];
+    admin
+      .auth()
+      .verifyIdToken(idToken)
+      .then(() => {
+        next();
+      })
+      .catch(error => {
+        logger.error(error.message);
+        logger.error(error.stack);
+        res.sendStatus(401);
+      });
+  } else {
+    res.statusMessage = "You must provide authorization token.";
+    res.sendStatus(401);
+  }
+});
+// }
 
 const respondWithDisconnectedFromDBMessage = res => {
   const message = "Not connected to Firebase Realtime Database";
@@ -178,10 +187,7 @@ app.post("/tickets", (req, res) => {
         return ticketPushRef
           .set(newTicket)
           .then(() => {
-            res.status(201).send({
-              id: ticketId,
-              ...newTicket
-            });
+            res.status(201).send(Object.assign({ id: ticketId }, newTicket));
           })
           .catch(respondWith500ErrorMessage(res));
       }
@@ -198,10 +204,7 @@ app.get("/tickets/:id", (req, res) => {
   const ticketId = req.params.id;
   if (tickets && tickets[ticketId]) {
     res.status(200).send({
-      ticket: {
-        id: ticketId,
-        ...tickets[ticketId]
-      }
+      ticket: Object.assign({ id: ticketId }, tickets[ticketId])
     });
   } else {
     res.status(200).send({
@@ -214,10 +217,7 @@ app.get("/tickets", (req, res) => {
   if (tickets) {
     let ticketList = [];
     for (let ticketId in tickets) {
-      ticketList.push({
-        id: ticketId,
-        ...tickets[ticketId]
-      });
+      ticketList.push(Object.assign({ id: ticketId }, tickets[ticketId]));
     }
     res.status(200).send({ tickets: ticketList });
   } else {
@@ -316,3 +316,5 @@ app.delete("/tickets", (req, res) => {
     respondWithDisconnectedFromDBMessage(res);
   }
 });
+
+exports.widgets = functions.https.onRequest(app);
